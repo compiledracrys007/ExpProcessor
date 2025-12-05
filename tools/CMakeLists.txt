@@ -13,4 +13,5 @@ add_executable(TestUtils ${TEST_UTILS_SOURCES})
 target_link_libraries(TestUtils 
     PRIVATE 
         utils
+        parser
 )

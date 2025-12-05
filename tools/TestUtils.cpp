@@ -1,7 +1,7 @@
 #include <iostream>
 #include <array>
 #include "Utils/Utils.h"
-
+#include "Parser/Parser.h"
 
 constexpr size_t GLOBAL_MEMORY = 1024ULL * 1024 * 1024; // 1 GB
 constexpr int NUMBER_OF_CORES = 4;
@@ -25,6 +25,14 @@ int main() {
 
     // 3. Print device info
     std::cout << target.get_device_info() << std::endl;
+
+
+    std::string filename = "test.dummy_asm";
+    auto operations = parseFile(filename);
+
+    for(auto op: operations) {
+        std::cout << "Parsed Op for Core ID: " << op.getCoreNum() << std::endl;
+    }
 
     return 0;
 }
