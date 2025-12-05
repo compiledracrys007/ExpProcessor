@@ -1,6 +1,6 @@
 #include <iostream>
 #include <array>
-#include "Utils.h"
+#include "Utils/Utils.h"
 
 
 constexpr size_t GLOBAL_MEMORY = 1024ULL * 1024 * 1024; // 1 GB
