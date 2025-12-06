@@ -6,11 +6,6 @@
 
 enum OpCode { GLOBAL_TO_LOCAL_MEM_COPY, LOCAL_TO_GLOBAL_MEM_COPY, MATMUL };
 
-class Operand {
-public:
-  Operand() = default;
-};
-
 using ID = int;
 
 class Dim {
@@ -35,7 +30,7 @@ public:
   int getStride() const { return stride; }
 };
 
-class SliceOperand : public Operand {
+class SliceOperand {
 private:
   int baseAddress;
   Dim dim1;
@@ -43,7 +38,7 @@ private:
 
 public:
   SliceOperand(int baseAddress, Dim dim1, Dim dim0)
-      : Operand(), baseAddress(baseAddress), dim1(dim1), dim0(dim0) {}
+      : baseAddress(baseAddress), dim1(dim1), dim0(dim0) {}
 
   void print(const std::string &indent = "") const {
     std::cout << indent << "Base Address: " << baseAddress << std::endl;
@@ -59,12 +54,12 @@ public:
   Dim getDim0() const { return dim0; }
 };
 
-class BoolOperand : public Operand {
+class BoolOperand {
 private:
   bool value;
 
 public:
-  BoolOperand(bool value) : Operand(), value(value) {}
+  BoolOperand(bool value) : value(value) {}
 
   void print(const std::string &indent = "") const {
     std::cout << indent << "Bool Value: " << (value ? "true" : "false")

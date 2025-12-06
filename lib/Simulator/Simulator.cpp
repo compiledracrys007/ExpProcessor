@@ -1,6 +1,6 @@
 #include "Simulator/Simulator.h"
-#include "ISA/ISAOps.h"
 #include "ISA/Op.h"
+#include "Target/EPU/EPUOps.h"
 #include <exception>
 #include <iostream>
 

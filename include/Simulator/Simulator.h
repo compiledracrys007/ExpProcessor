@@ -1,5 +1,5 @@
-#include "ISA/ISAOps.h"
-#include "Target/Processor.h"
+#include "Processor/Processor.h"
+#include "Target/EPU/EPUOps.h"
 #include <cstdint>
 #include <map>
 

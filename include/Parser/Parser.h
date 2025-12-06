@@ -2,7 +2,7 @@
 #define PARSER_H
 
 #include "ISA/Op.h"
-#include "ISA/ISAOps.h"
+#include "Target/EPU/EPUOps.h"
 
 std::vector<std::unique_ptr<Op>> parseFile(const std::string &filename);
 
