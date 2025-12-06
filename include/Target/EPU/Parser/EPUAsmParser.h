@@ -19,6 +19,10 @@ class EPUAsmParser : public Parser {
 
   GlobalToLocalMemCopyOp parseGlobalToLocalMemCopy(const std::string &line);
 
+  StartParallelOp parseStartParallel(const std::string &line);
+
+  EndParallelOp parseEndParallel(const std::string &line);
+
 public:
   EPUAsmParser(const Processor &proc) : Parser(proc) {}
 

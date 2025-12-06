@@ -4,6 +4,14 @@
 #ifndef ISA_OP_H
 #define ISA_OP_H
 
+enum OpCode {
+  GLOBAL_TO_LOCAL_MEM_COPY,
+  LOCAL_TO_GLOBAL_MEM_COPY,
+  MATMUL,
+  START_PARALLEL,
+  END_PARALLEL
+};
+
 class GlobalToLocalMemCopyOp : public Op {
 private:
   SliceOperand srcSlice;
@@ -12,7 +20,7 @@ private:
 public:
   GlobalToLocalMemCopyOp(ID coreNum, SliceOperand srcSlice,
                          SliceOperand dstSlice)
-      : Op(GLOBAL_TO_LOCAL_MEM_COPY, coreNum), srcSlice(srcSlice),
+      : Op(OpCode::GLOBAL_TO_LOCAL_MEM_COPY, coreNum), srcSlice(srcSlice),
         dstSlice(dstSlice) {}
 
   void dump() const override {
@@ -42,7 +50,7 @@ private:
 public:
   LocalToGlobalMemCopyOp(ID coreNum, SliceOperand srcSlice,
                          SliceOperand dstSlice)
-      : Op(LOCAL_TO_GLOBAL_MEM_COPY, coreNum), srcSlice(srcSlice),
+      : Op(OpCode::LOCAL_TO_GLOBAL_MEM_COPY, coreNum), srcSlice(srcSlice),
         dstSlice(dstSlice) {}
 
   void dump() const override {
@@ -74,7 +82,7 @@ private:
 public:
   MatmulOp(ID coreNum, ID mmUnitNum, SliceOperand sliceA, SliceOperand sliceB,
            SliceOperand sliceC, BoolOperand accumulate)
-      : Op(MATMUL, coreNum), mmUnitNum(mmUnitNum), sliceA(sliceA),
+      : Op(OpCode::MATMUL, coreNum), mmUnitNum(mmUnitNum), sliceA(sliceA),
         sliceB(sliceB), sliceC(sliceC), accumulate(accumulate) {}
 
   int getMMUnitNum() const { return mmUnitNum; }
@@ -105,6 +113,24 @@ public:
   bool getAccumulate() const { return accumulate.asBool(); }
 
   ~MatmulOp() = default;
+};
+
+class StartParallelOp : public Op {
+public:
+  StartParallelOp() : Op(OpCode::START_PARALLEL, 0) {}
+
+  void dump() const override { std::cout << "\nStartParallelOp" << std::endl; }
+
+  ~StartParallelOp() = default;
+};
+
+class EndParallelOp : public Op {
+public:
+  EndParallelOp() : Op(OpCode::END_PARALLEL, 0) {}
+
+  void dump() const override { std::cout << "\nEndParallelOp" << std::endl; }
+
+  ~EndParallelOp() = default;
 };
 
 #endif // ISA_OP_H

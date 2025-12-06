@@ -4,6 +4,7 @@
 #include "Target/EPU/Asm/EPUOps.h"
 #include <exception>
 #include <iostream>
+#include <stdexcept>
 
 void EPUSimulator::executeGlobalToLocalMemCopy(GlobalToLocalMemCopyOp *op) {
   auto src = op->getSrcSlice();
@@ -257,6 +258,18 @@ void EPUSimulator::executeMatmul(MatmulOp *op) {
   }
 }
 
+void EPUSimulator::execute(const std::unique_ptr<Op> &inst) {
+  if (auto *mm = dynamic_cast<MatmulOp *>(inst.get())) {
+    executeMatmul(mm);
+  } else if (auto *gtl = dynamic_cast<GlobalToLocalMemCopyOp *>(inst.get())) {
+    executeGlobalToLocalMemCopy(gtl);
+  } else if (auto *ltg = dynamic_cast<LocalToGlobalMemCopyOp *>(inst.get())) {
+    executeLocalToGlobalMemCopy(ltg);
+  } else {
+    throw std::runtime_error("Unhandled op");
+  }
+}
+
 void EPUSimulator::simulateInstructions(
     const std::vector<std::unique_ptr<Op>> &instructions) {
   std::cout << "Starting simulation for target = " << processor.getDeviceName()
@@ -264,13 +277,22 @@ void EPUSimulator::simulateInstructions(
 
   std::cout << "\nTarget Info:\n" << processor.get_device_info() << "\n";
 
+  std::vector<Op *> parallelInstsToDispatch;
+  bool fillToParallelDispatcher = false;
   for (auto &inst : instructions) {
-    if (auto *mm = dynamic_cast<MatmulOp *>(inst.get())) {
-      executeMatmul(mm);
-    } else if (auto *gtl = dynamic_cast<GlobalToLocalMemCopyOp *>(inst.get())) {
-      executeGlobalToLocalMemCopy(gtl);
-    } else if (auto *ltg = dynamic_cast<LocalToGlobalMemCopyOp *>(inst.get())) {
-      executeLocalToGlobalMemCopy(ltg);
+    if (auto startParallel = dynamic_cast<StartParallelOp *>(inst.get())) {
+      fillToParallelDispatcher = true;
+    } else if (auto endParallel = dynamic_cast<EndParallelOp *>(inst.get())) {
+      fillToParallelDispatcher = false;
+
+      if (!parallelInstsToDispatch.empty()) {
+        // fill code to dispatch parallelly
+      }
+    } else {
+      if (fillToParallelDispatcher)
+        parallelInstsToDispatch.push_back(inst.get());
+      else
+        execute(inst);
     }
   }
 }

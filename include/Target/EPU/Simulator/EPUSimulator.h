@@ -17,6 +17,8 @@ public:
 
   ~EPUSimulator() = default;
 
+  void execute(const std::unique_ptr<Op> &inst);
+
   void simulateInstructions(
       const std::vector<std::unique_ptr<Op>> &instructions) override;
 };
