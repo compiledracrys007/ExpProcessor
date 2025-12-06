@@ -5,6 +5,7 @@
 
 #include "Parser/Parser.h"
 #include "Simulator/Simulator.h"
+#include "Target/EPU/Parser/EPUAsmParser.h"
 #include "Target/EPU/Simulator/EPUSimulator.h"
 #include "Utils/Utils.h"
 #include <array>
@@ -38,7 +39,8 @@ int main() {
   std::string filename =
       std::string(std::getenv("ROOT_DIR")) + "/test/test_epu.asm";
 
-  auto operations = parseFile(filename);
+  auto parser = EPUAsmParser(target);
+  auto operations = parser.parseFile(filename);
 
   // for (const auto &op : operations) {
   //   op->dump();

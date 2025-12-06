@@ -3,6 +3,7 @@
 # Define the source files for the utility library
 set(EPU_TARGET_SOURCES 
     Simulator/EPUSimulator.cpp
+    Parser/EPUAsmParser.cpp
 )
 
 # Create a static library named 'TargetEPU'

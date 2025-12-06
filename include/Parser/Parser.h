@@ -2,8 +2,19 @@
 #define PARSER_H
 
 #include "ISA/Op.h"
-#include "Target/EPU/Ops/EPUOps.h"
+#include "Processor/Processor.h"
 
-std::vector<std::unique_ptr<Op>> parseFile(const std::string &filename);
+class Parser {
+protected:
+  Processor processor;
+
+public:
+  Parser(const Processor &proc) : processor(proc) {}
+
+  virtual std::vector<std::unique_ptr<Op>>
+  parseFile(const std::string &filename) = 0;
+
+  ~Parser() = default;
+};
 
 #endif // PARSER_H
