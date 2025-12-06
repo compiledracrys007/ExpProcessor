@@ -1,6 +1,5 @@
+#include "ISA/Op.h"
 #include "Processor/Processor.h"
-#include "Target/EPU/EPUOps.h"
-#include <cstdint>
 #include <map>
 
 #ifndef SIMULATOR_H

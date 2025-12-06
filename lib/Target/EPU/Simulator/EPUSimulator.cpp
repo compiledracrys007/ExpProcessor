@@ -1,7 +1,7 @@
-#include "Simulator/Simulator.h"
-#include "ISA/Op.h"
-#include "Target/EPU/EPUOps.h"
 #include "Target/EPU/Simulator/EPUSimulator.h"
+#include "ISA/Op.h"
+#include "Simulator/Simulator.h"
+#include "Target/EPU/Ops/EPUOps.h"
 #include <exception>
 #include <iostream>
 
