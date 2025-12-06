@@ -75,6 +75,8 @@ public:
     return 0; // or throw an exception if preferred
   }
 
+  std::string getDeviceName() const { return name; }
+
   std::string get_device_info() const {
     std::stringstream ss;
     ss << "Device: " << name << "\n";

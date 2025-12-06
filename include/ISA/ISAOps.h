@@ -27,6 +27,10 @@ public:
     dstSlice.print("\t  ");
   }
 
+  SliceOperand &getSrcSlice() { return srcSlice; }
+
+  SliceOperand &getDstSlice() { return dstSlice; }
+
   ~GlobalToLocalMemCopyOp() = default;
 };
 
@@ -51,6 +55,10 @@ public:
     std::cout << "\tDsr Global Memory " << std::endl;
     dstSlice.print("\t  ");
   }
+
+  SliceOperand &getSrcSlice() { return srcSlice; }
+
+  SliceOperand &getDstSlice() { return dstSlice; }
 
   ~LocalToGlobalMemCopyOp() = default;
 };
@@ -78,7 +86,7 @@ public:
     std::cout << "\tMM Unit Num: " << getMMUnitNum() << std::endl;
 
     std::cout << "\tSlice A" << std::endl;
-    sliceA.print("\t  "); 
+    sliceA.print("\t  ");
     std::cout << "\tSlice B" << std::endl;
     sliceB.print("\t  ");
     std::cout << "\tSlice C" << std::endl;
@@ -87,6 +95,14 @@ public:
     std::cout << "\tAccumulate" << std::endl;
     accumulate.print("\t  ");
   }
+
+  SliceOperand &getSliceA() { return sliceA; }
+
+  SliceOperand &getSliceB() { return sliceB; }
+
+  SliceOperand &getSliceC() { return sliceC; }
+
+  bool getAccumulate() const { return accumulate.asBool(); }
 
   ~MatmulOp() = default;
 };

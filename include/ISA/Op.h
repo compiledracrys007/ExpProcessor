@@ -27,6 +27,12 @@ public:
     std::cout << indent << "Start: " << start << ", End: " << end
               << ", Stride: " << stride << std::endl;
   }
+
+  int getStart() const { return start; }
+
+  int getEnd() const { return end; }
+
+  int getStride() const { return stride; }
 };
 
 class SliceOperand : public Operand {
@@ -45,6 +51,12 @@ public:
     dim1.print(indent + " ");
     dim0.print(indent + " ");
   }
+
+  int getBaseAddress() const { return baseAddress; }
+
+  Dim getDim1() const { return dim1; }
+
+  Dim getDim0() const { return dim0; }
 };
 
 class BoolOperand : public Operand {
@@ -58,6 +70,8 @@ public:
     std::cout << indent << "Bool Value: " << (value ? "true" : "false")
               << std::endl;
   }
+
+  bool asBool() const { return value; }
 };
 
 class Op {
