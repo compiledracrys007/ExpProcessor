@@ -14,4 +14,4 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # Add the subdirectories where targets (libraries and executables) are defined
 add_subdirectory(lib)
-add_subdirectory(tools)
+add_subdirectory(test)
