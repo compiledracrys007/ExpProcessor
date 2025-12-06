@@ -1,4 +1,5 @@
 #include "Parser/Parser.h"
+#include "Simulator/Simulator.h"
 #include "Utils/Utils.h"
 #include <array>
 #include <iostream>
@@ -14,7 +15,7 @@ constexpr int TILE_K = 32;
 int main() {
   std::array<int, 3> tile_config = {TILE_M, TILE_N, TILE_K};
 
-  Processor target = create_target("ipu", GLOBAL_MEMORY, NUMBER_OF_CORES,
+  Processor target = create_target("epu", GLOBAL_MEMORY, NUMBER_OF_CORES,
                                    LOCAL_MEMORY_PER_CORE,
                                    NUMBER_OF_MM_UNITS_PER_CORE, tile_config);
 
@@ -24,9 +25,12 @@ int main() {
   std::string filename = "test.dummy_asm";
   auto operations = parseFile(filename);
 
-  for (const auto &op : operations) {
-    op->dump();
-  }
+  // for (const auto &op : operations) {
+  //   op->dump();
+  // }
+
+  auto targetSim = Simulator(target);
+  targetSim.simulateInstructions(operations);
 
   return 0;
 }

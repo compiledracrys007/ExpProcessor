@@ -14,4 +14,5 @@ target_link_libraries(TestUtils
     PRIVATE 
         utils
         parser
+        simulator
 )
