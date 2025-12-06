@@ -43,7 +43,10 @@ public:
     memory = new uint8_t[totalMemorySize];
   }
 
-  ~Simulator() { delete[] memory; }
+  virtual ~Simulator() { delete[] memory; }
+
+  Simulator(const Simulator &) = delete;
+  Simulator &operator=(const Simulator &) = delete;
 
   virtual void simulateInstructions(
       const std::vector<std::unique_ptr<Op>> &instructions) = 0;

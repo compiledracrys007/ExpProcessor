@@ -1,5 +1,5 @@
 #include "Simulator/Simulator.h"
-#include "Target/EPU/Ops/EPUOps.h"
+#include "Target/EPU/Asm/EPUOps.h"
 
 #ifndef EPUSIMULATOR_H
 #define EPUSIMULATOR_H
@@ -14,6 +14,8 @@ private:
 
 public:
   EPUSimulator(const Processor &proc) : Simulator(proc) {}
+
+  ~EPUSimulator() = default;
 
   void simulateInstructions(
       const std::vector<std::unique_ptr<Op>> &instructions) override;

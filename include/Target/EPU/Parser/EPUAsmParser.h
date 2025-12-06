@@ -1,5 +1,5 @@
 #include "Parser/Parser.h"
-#include "Target/EPU/Ops/EPUOps.h"
+#include "Target/EPU/Asm/EPUOps.h"
 
 #ifndef EPU_ASM_PARSER_H
 #define EPU_ASM_PARSER_H
@@ -21,6 +21,8 @@ class EPUAsmParser : public Parser {
 
 public:
   EPUAsmParser(const Processor &proc) : Parser(proc) {}
+
+  ~EPUAsmParser() = default;
 
   std::vector<std::unique_ptr<Op>>
   parseFile(const std::string &filename) override;

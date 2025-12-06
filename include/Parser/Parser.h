@@ -14,7 +14,7 @@ public:
   virtual std::vector<std::unique_ptr<Op>>
   parseFile(const std::string &filename) = 0;
 
-  ~Parser() = default;
+  virtual ~Parser() = default;
 };
 
 #endif // PARSER_H

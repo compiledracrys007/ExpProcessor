@@ -3,10 +3,6 @@
 // processor, loads the instructions, registers input and output tensors, runs
 // the simulation, and verifies the output against expected results.
 
-#include "Parser/Parser.h"
-#include "Simulator/Simulator.h"
-#include "Target/EPU/Parser/EPUAsmParser.h"
-#include "Target/EPU/Simulator/EPUSimulator.h"
 #include "Utils/Utils.h"
 #include <array>
 #include <iostream>
@@ -24,9 +20,9 @@ constexpr int TILE_K = 32;
 int main() {
   std::array<int, 3> tile_config = {TILE_M, TILE_N, TILE_K};
 
-  Processor target = create_target("epu", GLOBAL_MEMORY, NUMBER_OF_CORES,
-                                   LOCAL_MEMORY_PER_CORE,
-                                   NUMBER_OF_MM_UNITS_PER_CORE, tile_config);
+  auto target =
+      createTarget("epu", GLOBAL_MEMORY, NUMBER_OF_CORES, LOCAL_MEMORY_PER_CORE,
+                   NUMBER_OF_MM_UNITS_PER_CORE, tile_config);
 
   // // 3. Print device info
   // std::cout << target.get_device_info() << std::endl;
@@ -39,14 +35,14 @@ int main() {
   std::string filename =
       std::string(std::getenv("ROOT_DIR")) + "/test/test_epu.asm";
 
-  auto parser = EPUAsmParser(target);
-  auto operations = parser.parseFile(filename);
+  auto parser = getTargetParser(target);
+  auto operations = parser->parseFile(filename);
 
   // for (const auto &op : operations) {
   //   op->dump();
   // }
 
-  auto targetSim = EPUSimulator(target);
+  auto targetSim = getTargetSimulator(target);
 
   // register inputs & output handles
   float inputTensorA[32][32];
@@ -73,13 +69,13 @@ int main() {
     }
   }
 
-  targetSim.registerInputHandle(1, inputTensorA, sizeof(inputTensorA));
-  targetSim.registerInputHandle(2, inputTensorB, sizeof(inputTensorB));
-  targetSim.registerOutputHandle(3, sizeof(outputTensorC));
+  targetSim->registerInputHandle(1, inputTensorA, sizeof(inputTensorA));
+  targetSim->registerInputHandle(2, inputTensorB, sizeof(inputTensorB));
+  targetSim->registerOutputHandle(3, sizeof(outputTensorC));
 
-  targetSim.simulateInstructions(operations);
+  targetSim->simulateInstructions(operations);
 
-  targetSim.retrieveOutputData(3, outputTensorC, sizeof(outputTensorC));
+  targetSim->retrieveOutputData(3, outputTensorC, sizeof(outputTensorC));
 
   // Verify output
   bool correct = true;
