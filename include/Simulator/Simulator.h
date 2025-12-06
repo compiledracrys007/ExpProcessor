@@ -7,7 +7,7 @@
 #define SIMULATOR_H
 
 class Simulator {
-private:
+protected:
   Processor processor;
   int globalMemorySize;
   int localMemoryPerCore;
@@ -29,12 +29,6 @@ private:
     return memory + globalMemorySize + (coreId * localMemoryPerCore);
   }
 
-  void executeGlobalToLocalMemCopy(GlobalToLocalMemCopyOp *op);
-
-  void executeLocalToGlobalMemCopy(LocalToGlobalMemCopyOp *op);
-
-  void executeMatmul(MatmulOp *op);
-
 public:
   Simulator(const Processor &proc) : processor(proc) {
     globalMemorySize = proc.getGlobalMemory();
@@ -52,8 +46,8 @@ public:
 
   ~Simulator() { delete[] memory; }
 
-  void
-  simulateInstructions(const std::vector<std::unique_ptr<Op>> &instructions);
+  virtual void simulateInstructions(
+      const std::vector<std::unique_ptr<Op>> &instructions) = 0;
 
   void registerInputHandle(int handleId, const void *rawData, size_t numBytes);
 

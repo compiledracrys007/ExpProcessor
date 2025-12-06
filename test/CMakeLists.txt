@@ -15,4 +15,5 @@ target_link_libraries(test_epu
         utils
         parser
         simulator
+        TargetEPU
 )

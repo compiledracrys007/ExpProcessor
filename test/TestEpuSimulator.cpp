@@ -5,6 +5,7 @@
 
 #include "Parser/Parser.h"
 #include "Simulator/Simulator.h"
+#include "Target/EPU/Simulator/EPUSimulator.h"
 #include "Utils/Utils.h"
 #include <array>
 #include <iostream>
@@ -43,7 +44,7 @@ int main() {
   //   op->dump();
   // }
 
-  auto targetSim = Simulator(target);
+  auto targetSim = EPUSimulator(target);
 
   // register inputs & output handles
   float inputTensorA[32][32];
