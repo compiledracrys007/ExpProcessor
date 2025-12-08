@@ -71,9 +71,11 @@ int main() {
     }
   }
 
-  targetSim->registerInputHandle(1, inputTensorA, sizeof(inputTensorA));
-  targetSim->registerInputHandle(2, inputTensorB, sizeof(inputTensorB));
-  targetSim->registerOutputHandle(3, sizeof(outputTensorC));
+  targetSim->registerInputHandle(1, inputTensorA, sizeof(inputTensorA),
+                                 {32, 32});
+  targetSim->registerInputHandle(2, inputTensorB, sizeof(inputTensorB),
+                                 {32, 32});
+  targetSim->registerOutputHandle(3, sizeof(outputTensorC), {32, 32});
 
   targetSim->simulateInstructions(operations);
 

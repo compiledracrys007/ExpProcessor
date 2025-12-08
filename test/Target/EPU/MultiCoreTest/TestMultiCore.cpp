@@ -18,7 +18,7 @@ constexpr int TILE_N = 32;
 constexpr int TILE_K = 32;
 
 int main() {
-  std::cout << "Starting EPU Parallel Dispatch Test..." << std::endl;
+  std::cout << "Starting EPU Multicore Test..." << std::endl;
 
   std::array<int, 3> tile_config = {TILE_M, TILE_N, TILE_K};
 
@@ -35,7 +35,7 @@ int main() {
   }
 
   std::string filename = std::string(std::getenv("ROOT_DIR")) +
-                         "/test/Target/EPU/ParalellDispatchTest/parallel.asm";
+                         "/test/Target/EPU/MultiCoreTest/multicore.asm";
 
   auto parser = getTargetParser(target);
   auto operations = parser->parseFile(filename);

@@ -2,6 +2,7 @@
 #include "ISA/Op.h"
 #include "Simulator/Simulator.h"
 #include "Target/EPU/Asm/EPUOps.h"
+#include <assert.h>
 #include <exception>
 #include <future>
 #include <iostream>
@@ -35,14 +36,18 @@ void EPUSimulator::executeGlobalToLocalMemCopy(GlobalToLocalMemCopyOp *op) {
   const Dim &d1 = dst.getDim1(); // dst row dimension
   const Dim &d0 = dst.getDim0(); // dst col dimension
 
+  assert(s1.getStride() == s0.getStride() == d1.getStride() == d0.getStride() ==
+             1 &&
+         "Non unit strides are yet to be supported\n");
+
   // -----------------------------
   // Validate shapes match
   // -----------------------------
-  int rows_src = (s1.getEnd() - s1.getStart()) / s1.getStride();
-  int cols_src = (s0.getEnd() - s0.getStart()) / s0.getStride();
+  int rows_src = (s1.getEnd() - s1.getStart());
+  int cols_src = (s0.getEnd() - s0.getStart());
 
-  int rows_dst = (d1.getEnd() - d1.getStart()) / d1.getStride();
-  int cols_dst = (d0.getEnd() - d0.getStart()) / d0.getStride();
+  int rows_dst = (d1.getEnd() - d1.getStart());
+  int cols_dst = (d0.getEnd() - d0.getStart());
 
   if (rows_src != rows_dst || cols_src != cols_dst) {
     std::cerr << "ERROR: mismatched source/destination slice shapes!\n";
@@ -59,21 +64,17 @@ void EPUSimulator::executeGlobalToLocalMemCopy(GlobalToLocalMemCopyOp *op) {
   // needs to be enhanced to accept any dtype.
   const size_t elemSize = sizeof(float);
 
-  int srcRowStrideBytes = (s0.getEnd() - s0.getStart()) * elemSize;
-  int dstRowStrideBytes = (d0.getEnd() - d0.getStart()) * elemSize;
-
-  uint8_t *srcPtr = handleBase;
-  uint8_t *dstPtr = localBase;
+  auto handleTensorShape = inputHandleToShapeMap[handleId];
 
   for (int r = 0; r < rows; ++r) {
-    int srcRowIndex = s1.getStart() + r * s1.getStride();
-    int dstRowIndex = d1.getStart() + r * d1.getStride();
+    int srcRowIndex = s1.getStart() + r;
+    int dstRowIndex = d1.getStart() + r;
 
     for (int c = 0; c < cols; ++c) {
-      int srcColIndex = s0.getStart() + c * s0.getStride();
-      int dstColIndex = d0.getStart() + c * d0.getStride();
+      int srcColIndex = s0.getStart() + c;
+      int dstColIndex = d0.getStart() + c;
 
-      size_t srcOffset = (srcRowIndex * (s0.getEnd())) + srcColIndex;
+      size_t srcOffset = (srcRowIndex * (handleTensorShape[1])) + srcColIndex;
       size_t dstOffset = (dstRowIndex * (d0.getEnd())) + dstColIndex;
 
       // convert to bytes
@@ -116,12 +117,16 @@ void EPUSimulator::executeLocalToGlobalMemCopy(LocalToGlobalMemCopyOp *op) {
   const Dim &d1 = dst.getDim1();
   const Dim &d0 = dst.getDim0();
 
-  // Slice sizes (number of elements)
-  int rows_src = (s1.getEnd() - s1.getStart()) / s1.getStride();
-  int cols_src = (s0.getEnd() - s0.getStart()) / s0.getStride();
+  assert(s1.getStride() == s0.getStride() == d1.getStride() == d0.getStride() ==
+             1 &&
+         "Non unit strides are yet to be supported\n");
 
-  int rows_dst = (d1.getEnd() - d1.getStart()) / d1.getStride();
-  int cols_dst = (d0.getEnd() - d0.getStart()) / d0.getStride();
+  // Slice sizes (number of elements)
+  int rows_src = (s1.getEnd() - s1.getStart());
+  int cols_src = (s0.getEnd() - s0.getStart());
+
+  int rows_dst = (d1.getEnd() - d1.getStart());
+  int cols_dst = (d0.getEnd() - d0.getStart());
 
   if (rows_src != rows_dst || cols_src != cols_dst) {
     std::cerr << "ERROR: Local→Global slice shape mismatch!\n";
@@ -139,22 +144,23 @@ void EPUSimulator::executeLocalToGlobalMemCopy(LocalToGlobalMemCopyOp *op) {
 
   // Full row lengths for correct offset calculation
   int srcFullCols = s0.getEnd(); // local memory slice full width
-  int dstFullCols = d0.getEnd(); // global memory slice full width
+
+  auto handleTensorShape = outputHandleToShapeMap[handleId];
 
   // ------------------------------------------------------------
   // PER-ELEMENT STRIDED COPY (correct stride semantics)
   // ------------------------------------------------------------
   for (int r = 0; r < rows; ++r) {
-    int srcRowIndex = s1.getStart() + r * s1.getStride();
-    int dstRowIndex = d1.getStart() + r * d1.getStride();
+    int srcRowIndex = s1.getStart() + r;
+    int dstRowIndex = d1.getStart() + r;
 
     for (int c = 0; c < cols; ++c) {
-      int srcColIndex = s0.getStart() + c * s0.getStride();
-      int dstColIndex = d0.getStart() + c * d0.getStride();
+      int srcColIndex = s0.getStart() + c;
+      int dstColIndex = d0.getStart() + c;
 
       // Logical offsets
       size_t srcOffset = srcRowIndex * srcFullCols + srcColIndex;
-      size_t dstOffset = dstRowIndex * dstFullCols + dstColIndex;
+      size_t dstOffset = dstRowIndex * handleTensorShape[1] + dstColIndex;
 
       float *srcElement = reinterpret_cast<float *>(localBase) + srcOffset;
       float *dstElement = reinterpret_cast<float *>(globalBase) + dstOffset;

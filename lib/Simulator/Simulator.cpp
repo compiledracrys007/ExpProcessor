@@ -1,25 +1,33 @@
 #include "Simulator/Simulator.h"
 #include "ISA/Op.h"
+#include <assert.h>
 #include <exception>
 #include <iostream>
 
 void Simulator::registerInputHandle(int handleId, const void *rawData,
-                                    size_t numBytes) {
+                                    size_t numBytes, std::vector<int> shape) {
   if (nextFreeGlobalMemoryOffset + numBytes > globalMemorySize)
     throw std::runtime_error("No space in global memory");
+
+  assert(shape.size() == 2 && "Supports only 2d input/output type for now");
 
   // Copy input bytes into memory
   std::memcpy(memory + nextFreeGlobalMemoryOffset, rawData, numBytes);
   inputHandleToMemoryLocMap[handleId] = nextFreeGlobalMemoryOffset;
+  inputHandleToShapeMap[handleId] = shape;
 
   nextFreeGlobalMemoryOffset += numBytes;
 }
 
-void Simulator::registerOutputHandle(int handleId, size_t numBytes) {
+void Simulator::registerOutputHandle(int handleId, size_t numBytes,
+                                     std::vector<int> shape) {
   if (nextFreeGlobalMemoryOffset + numBytes > globalMemorySize)
     throw std::runtime_error("No space in global memory");
 
+  assert(shape.size() == 2 && "Supports only 2d input/output type for now");
+
   outputHandleToMemoryLocMap[handleId] = nextFreeGlobalMemoryOffset;
+  outputHandleToShapeMap[handleId] = shape;
 
   nextFreeGlobalMemoryOffset += numBytes;
 }
