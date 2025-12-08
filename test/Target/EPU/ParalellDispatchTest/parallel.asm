@@ -1,8 +1,16 @@
+start_parallel
 cp_global_to_local <1, 0:32:1, 0:32:1>, 1, <0, 0:32:1, 0:32:1>
 cp_global_to_local <1, 0:32:1, 0:32:1>, 2, <0, 0:32:1, 0:32:1>
+end_parallel
+start_parallel
 cp_global_to_local <2, 0:32:1, 0:32:1>, 1, <4096, 0:32:1, 0:32:1>
 cp_global_to_local <2, 0:32:1, 32:64:1>, 2, <4096, 0:32:1, 0:32:1>
+end_parallel
+start_parallel
 matmul 1, 0, <0, 0:32:1, 0:32:1>, <4096, 0:32:1, 0:32:1>, <8192, 0:32:1, 0:32:1>, accumulator=False
 matmul 2, 0, <0, 0:32:1, 0:32:1>, <4096, 0:32:1, 0:32:1>, <8192, 0:32:1, 0:32:1>, accumulator=False
+end_parallel
+start_parallel
 cp_local_to_global 1, <8192, 0:32:1, 0:32:1>, <3, 0:32:1, 0:32:1>
 cp_local_to_global 2, <8192, 0:32:1, 0:32:1>, <3, 0:32:1, 32:64:1>
+end_parallel

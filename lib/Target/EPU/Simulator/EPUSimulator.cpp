@@ -285,7 +285,11 @@ void EPUSimulator::dispatchParallelInstructions(
   std::vector<std::thread> workers;
 
   for (Op *op : insts) {
-    workers.emplace_back([this, op]() { this->execute(op); });
+    workers.emplace_back([this, op]() {
+      std::cout << "Thread ID: " << std::this_thread::get_id()
+                << " executing op: " << op << std::endl;
+      this->execute(op);
+    });
   }
 
   for (auto &t : workers)
