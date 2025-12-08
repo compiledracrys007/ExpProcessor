@@ -1,1 +1,2 @@
 add_subdirectory(BasicTest)
+add_subdirectory(ParalellDispatchTest)

@@ -55,6 +55,11 @@ public:
 
   void registerOutputHandle(int handleId, size_t numBytes);
 
+  void retrieveLocalMemoryData(int coreNum, int offset, void *outputBufferm,
+                               size_t numBytes);
+
+  void retrieveInputData(int handleId, void *outputBuffer, size_t numBytes);
+
   void retrieveOutputData(int handleId, void *outputBuffer, size_t numBytes);
 };
 
