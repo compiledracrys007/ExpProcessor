@@ -17,7 +17,9 @@ public:
 
   ~EPUSimulator() = default;
 
-  void execute(const std::unique_ptr<Op> &inst);
+  void execute(Op *inst);
+
+  void dispatchParallelInstructions(const std::vector<Op *> &insts);
 
   void simulateInstructions(
       const std::vector<std::unique_ptr<Op>> &instructions) override;

@@ -18,6 +18,8 @@ constexpr int TILE_N = 32;
 constexpr int TILE_K = 32;
 
 int main() {
+  std::cout << "Starting EPU Basic Test..." << std::endl;
+
   std::array<int, 3> tile_config = {TILE_M, TILE_N, TILE_K};
 
   auto target =
@@ -32,8 +34,8 @@ int main() {
         "Error: ROOT_DIR environment variable is not set.");
   }
 
-  std::string filename =
-      std::string(std::getenv("ROOT_DIR")) + "/test/test_epu.asm";
+  std::string filename = std::string(std::getenv("ROOT_DIR")) +
+                         "/test/Target/EPU/BasicTest/basic.asm";
 
   auto parser = getTargetParser(target);
   auto operations = parser->parseFile(filename);

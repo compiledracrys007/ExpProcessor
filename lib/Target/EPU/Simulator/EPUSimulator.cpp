@@ -3,6 +3,7 @@
 #include "Simulator/Simulator.h"
 #include "Target/EPU/Asm/EPUOps.h"
 #include <exception>
+#include <future>
 #include <iostream>
 #include <stdexcept>
 
@@ -258,16 +259,31 @@ void EPUSimulator::executeMatmul(MatmulOp *op) {
   }
 }
 
-void EPUSimulator::execute(const std::unique_ptr<Op> &inst) {
-  if (auto *mm = dynamic_cast<MatmulOp *>(inst.get())) {
+void EPUSimulator::execute(Op *inst) {
+  if (auto *mm = dynamic_cast<MatmulOp *>(inst)) {
     executeMatmul(mm);
-  } else if (auto *gtl = dynamic_cast<GlobalToLocalMemCopyOp *>(inst.get())) {
+  } else if (auto *gtl = dynamic_cast<GlobalToLocalMemCopyOp *>(inst)) {
     executeGlobalToLocalMemCopy(gtl);
-  } else if (auto *ltg = dynamic_cast<LocalToGlobalMemCopyOp *>(inst.get())) {
+  } else if (auto *ltg = dynamic_cast<LocalToGlobalMemCopyOp *>(inst)) {
     executeLocalToGlobalMemCopy(ltg);
   } else {
     throw std::runtime_error("Unhandled op");
   }
+}
+
+void EPUSimulator::dispatchParallelInstructions(
+    const std::vector<Op *> &insts) {
+
+  // Example implementation:
+  // Each Op goes to a different thread or different core simulation.
+  std::vector<std::thread> workers;
+
+  for (Op *op : insts) {
+    workers.emplace_back([this, op]() { this->execute(op); });
+  }
+
+  for (auto &t : workers)
+    t.join();
 }
 
 void EPUSimulator::simulateInstructions(
@@ -286,13 +302,16 @@ void EPUSimulator::simulateInstructions(
       fillToParallelDispatcher = false;
 
       if (!parallelInstsToDispatch.empty()) {
-        // fill code to dispatch parallelly
+        // ---- Dispatch all collected instructions in parallel ----
+        dispatchParallelInstructions(parallelInstsToDispatch);
+
+        parallelInstsToDispatch.clear();
       }
     } else {
       if (fillToParallelDispatcher)
         parallelInstsToDispatch.push_back(inst.get());
       else
-        execute(inst);
+        execute(inst.get());
     }
   }
 }
