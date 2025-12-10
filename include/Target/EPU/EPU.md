@@ -157,3 +157,64 @@ cp_local_to_global core=0, <8192, [0:32:1], [0:32:1]>, <C, [0:32:1], [0:32:1]>
 * 1.0 — Initial description covering core features, instruction syntax and examples.
 
 ---
+
+## 2.0 — Added parallel execution block ISA (`start_parallel`, `end_parallel`)
+
+Version 2.0 introduces two new structural ISA pseudo-operations:
+
+- `start_parallel`
+- `end_parallel`
+
+### Purpose
+
+These operations define **parallel execution regions** in the program.  
+Any instructions appearing between `start_parallel` and `end_parallel` are considered **independent parallel tasks** that the hardware or simulator may dispatch to different cores or threads.
+
+This extension allows the assembler/scheduler to express parallelism **explicitly**, instead of relying solely on driver-side scheduling or implicit analysis.
+
+---
+
+### Semantics
+
+#### `start_parallel`
+- Marks the beginning of a **parallel region**.
+- All **top-level instructions** inside this region are eligible for **concurrent dispatch**.
+- Example: four independent `cp_global_to_local` instructions or four independent `matmul` instructions can be executed in parallel across the 4 cores.
+
+#### `end_parallel`
+- Marks the end of the region and acts as an **implicit join/fence**.
+- All parallel operations must complete before the next instruction **outside** the region begins execution.
+- No ordering is guaranteed within the parallel block unless implied by:
+  - explicit data dependencies,
+  - overlapping local-memory slices,
+  - accumulator semantics.
+
+#### Additional rules
+- **Nested parallel regions are not allowed** (unsupported in version 2.0).
+- Multiple disjoint parallel regions **may appear sequentially**.
+
+---
+
+### Rationale
+
+Before version 2.0, parallelism was inferred indirectly by:
+- Scheduling separate instructions to different cores, or
+- Relying on the simulator/runtime to detect independent operations.
+
+This was error-prone. The new constructs provide:
+
+- **Precise visibility** into which operations may legally execute in parallel.
+- **Simpler simulation runtimes**: they only spawn worker threads for the defined parallel region.
+- **Deterministic synchronization**: `end_parallel` always acts as a join point.
+
+---
+
+### Example usage
+
+```asm
+start_parallel
+  cp_global_to_local <A0_tile>, core=0, <dst0>
+  cp_global_to_local <A1_tile>, core=1, <dst1>
+  cp_global_to_local <A2_tile>, core=2, <dst2>
+  cp_global_to_local <A3_tile>, core=3, <dst3>
+end_parallel

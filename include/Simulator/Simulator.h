@@ -17,7 +17,9 @@ protected:
 
   int nextFreeGlobalMemoryOffset = 0;
   std::map<int, int> inputHandleToMemoryLocMap;
+  std::map<int, std::vector<int>> inputHandleToShapeMap;
   std::map<int, int> outputHandleToMemoryLocMap;
+  std::map<int, std::vector<int>> outputHandleToShapeMap;
 
   uint8_t *getGlobalMemoryBaseAddress() const { return memory; }
 
@@ -51,9 +53,16 @@ public:
   virtual void simulateInstructions(
       const std::vector<std::unique_ptr<Op>> &instructions) = 0;
 
-  void registerInputHandle(int handleId, const void *rawData, size_t numBytes);
+  void registerInputHandle(int handleId, const void *rawData, size_t numBytes,
+                           std::vector<int> dims);
 
-  void registerOutputHandle(int handleId, size_t numBytes);
+  void registerOutputHandle(int handleId, size_t numBytes,
+                            std::vector<int> dims);
+
+  void retrieveLocalMemoryData(int coreNum, int offset, void *outputBufferm,
+                               size_t numBytes);
+
+  void retrieveInputData(int handleId, void *outputBuffer, size_t numBytes);
 
   void retrieveOutputData(int handleId, void *outputBuffer, size_t numBytes);
 };

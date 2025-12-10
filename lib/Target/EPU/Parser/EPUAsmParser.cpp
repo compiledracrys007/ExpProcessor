@@ -201,6 +201,22 @@ MatmulOp EPUAsmParser::parseMatmul(const std::string &line) {
   return MatmulOp(core, mmUnit, sliceA, sliceB, sliceC, BoolOperand(acc));
 }
 
+StartParallelOp EPUAsmParser::parseStartParallel(const std::string &line) {
+  string rest = trim(line.substr(strlen("start_parallel")));
+  if (!rest.empty())
+    throw runtime_error("start_parallel takes no arguments");
+
+  return StartParallelOp();
+}
+
+EndParallelOp EPUAsmParser::parseEndParallel(const std::string &line) {
+  string rest = trim(line.substr(strlen("end_parallel")));
+  if (!rest.empty())
+    throw runtime_error("end_parallel takes no arguments");
+
+  return EndParallelOp();
+}
+
 std::vector<std::unique_ptr<Op>>
 EPUAsmParser::parseFile(const std::string &filename) {
   std::vector<std::unique_ptr<Op>> parsedOps;
@@ -227,6 +243,12 @@ EPUAsmParser::parseFile(const std::string &filename) {
     } else if (starts_with(s, "matmul")) {
       auto instr = parseMatmul(s);
       parsedOps.push_back(std::make_unique<MatmulOp>(instr));
+    } else if (starts_with(s, "start_parallel")) {
+      auto instr = parseStartParallel(s);
+      parsedOps.push_back(std::make_unique<StartParallelOp>(instr));
+    } else if (starts_with(s, "end_parallel")) {
+      auto instr = parseEndParallel(s);
+      parsedOps.push_back(std::make_unique<EndParallelOp>(instr));
     } else {
       exit(ErrorCode::PARSE_ERROR);
     }

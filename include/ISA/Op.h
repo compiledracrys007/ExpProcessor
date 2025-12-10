@@ -4,8 +4,6 @@
 #ifndef OP_H
 #define OP_H
 
-enum OpCode { GLOBAL_TO_LOCAL_MEM_COPY, LOCAL_TO_GLOBAL_MEM_COPY, MATMUL };
-
 using ID = int;
 
 class Dim {
@@ -71,11 +69,11 @@ public:
 
 class Op {
 private:
-  OpCode opCode;
+  int opCode;
   ID coreId;
 
 public:
-  Op(OpCode opCode, ID coreId) : opCode(opCode), coreId(coreId) {}
+  Op(int opCode, ID coreId) : opCode(opCode), coreId(coreId) {}
 
   int getCoreNum() const { return coreId; }
 

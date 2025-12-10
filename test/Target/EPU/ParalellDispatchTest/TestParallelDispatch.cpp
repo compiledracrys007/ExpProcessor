@@ -18,6 +18,8 @@ constexpr int TILE_N = 32;
 constexpr int TILE_K = 32;
 
 int main() {
+  std::cout << "Starting EPU Parallel Dispatch Test..." << std::endl;
+
   std::array<int, 3> tile_config = {TILE_M, TILE_N, TILE_K};
 
   auto target =
@@ -32,36 +34,38 @@ int main() {
         "Error: ROOT_DIR environment variable is not set.");
   }
 
-  std::string filename =
-      std::string(std::getenv("ROOT_DIR")) + "/test/test_epu.asm";
+  std::string filename = std::string(std::getenv("ROOT_DIR")) +
+                         "/test/Target/EPU/ParalellDispatchTest/parallel.asm";
 
   auto parser = getTargetParser(target);
   auto operations = parser->parseFile(filename);
-
-  // for (const auto &op : operations) {
-  //   op->dump();
-  // }
 
   auto targetSim = getTargetSimulator(target);
 
   // register inputs & output handles
   float inputTensorA[32][32];
-  float inputTensorB[32][32];
-  float outputTensorC[32][32];
+  float inputTensorB[32][64];
+  float outputTensorC[32][64];
 
   // Initialize input tensors
   for (int i = 0; i < 32; ++i) {
     for (int j = 0; j < 32; ++j) {
       inputTensorA[i][j] = static_cast<float>((i + j) / 10.0);
+      outputTensorC[i][j] = 0.0f;
+    }
+  }
+
+  for (int i = 0; i < 32; ++i) {
+    for (int j = 0; j < 64; ++j) {
       inputTensorB[i][j] = static_cast<float>((i - j) / 10.0);
       outputTensorC[i][j] = 0.0f;
     }
   }
 
   // calculate expected output for verification
-  float expectedOutput[32][32];
+  float expectedOutput[32][64];
   for (int i = 0; i < 32; ++i) {
-    for (int j = 0; j < 32; ++j) {
+    for (int j = 0; j < 64; ++j) {
       expectedOutput[i][j] = 0.0f;
       for (int k = 0; k < 32; ++k) {
         expectedOutput[i][j] += inputTensorA[i][k] * inputTensorB[k][j];
@@ -69,9 +73,11 @@ int main() {
     }
   }
 
-  targetSim->registerInputHandle(1, inputTensorA, sizeof(inputTensorA));
-  targetSim->registerInputHandle(2, inputTensorB, sizeof(inputTensorB));
-  targetSim->registerOutputHandle(3, sizeof(outputTensorC));
+  targetSim->registerInputHandle(1, inputTensorA, sizeof(inputTensorA),
+                                 {32, 32});
+  targetSim->registerInputHandle(2, inputTensorB, sizeof(inputTensorB),
+                                 {32, 64});
+  targetSim->registerOutputHandle(3, sizeof(outputTensorC), {32, 64});
 
   targetSim->simulateInstructions(operations);
 
@@ -80,7 +86,7 @@ int main() {
   // Verify output
   bool correct = true;
   for (int i = 0; i < 32; ++i) {
-    for (int j = 0; j < 32; ++j) {
+    for (int j = 0; j < 64; ++j) {
       if (std::abs(outputTensorC[i][j] - expectedOutput[i][j]) > 1e-5) {
         std::cout << "Mismatch at (" << i << ", " << j << "): expected "
                   << expectedOutput[i][j] << ", got " << outputTensorC[i][j]
