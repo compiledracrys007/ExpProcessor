@@ -25,6 +25,12 @@ public:
        << ", N: " << tile_n << ", K: " << tile_k;
     return ss.str();
   }
+
+  int getTileM() { return tile_m; }
+
+  int getTileK() { return tile_k; }
+
+  int getTileN() { return tile_n; }
 };
 
 // 2. ComputeCore Class
@@ -75,6 +81,13 @@ public:
     return 0; // or throw an exception if preferred
   }
 
+  int getMMUnitsPerCore() const {
+    if (!compute_cores.empty()) {
+      return compute_cores[0].getMatmulUnits().size();
+    }
+    return 0; // or throw an exception if preferred
+  }
+
   std::string getDeviceName() const { return name; }
 
   std::string get_device_info() const {
@@ -91,6 +104,11 @@ public:
     }
     return ss.str();
   }
+
+  std::tuple<int, int, int> getMMUnitTiles() {
+    auto mmUnit = compute_cores[0].getMatmulUnits()[0];
+    return {mmUnit.getTileM(), mmUnit.getTileK(), mmUnit.getTileN()};
+  };
 };
 
 #endif // PROCESSOR_H

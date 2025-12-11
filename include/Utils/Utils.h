@@ -20,4 +20,6 @@ std::unique_ptr<Parser> getTargetParser(const Processor &processor);
 
 std::unique_ptr<Simulator> getTargetSimulator(const Processor &processor);
 
+Processor createEPUTarget();
+
 #endif // UTILS_H
