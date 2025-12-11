@@ -75,7 +75,7 @@ static void emitLocalToGlobalCopy(int coreId, int numOfColTiles,
                         dim0Slice + ", " + dstDim1Slice + ">";
 
   auto srcMemLocation =
-      "<" + localMemOffset + ", " + dim0Slice + ", " + dstDim1Slice + ">";
+      "<" + localMemOffset + ", " + dim0Slice + ", " + srcDim1Slice + ">";
 
   auto inst = "cp_local_to_global " + std::to_string(coreId) + ", " +
               srcMemLocation + ", " + dstMemLocation;
