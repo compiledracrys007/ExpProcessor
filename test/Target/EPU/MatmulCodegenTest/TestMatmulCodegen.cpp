@@ -99,10 +99,8 @@ int main() {
         "Error: ROOT_DIR environment variable is not set.");
   }
 
-  // std::vector<std::vector<int>> tests = {
-  //     {32, 32, 64}, {32, 32, 128}, {32, 32, 256}};
-
-  std::vector<std::vector<int>> tests = {{32, 32, 32}};
+  std::vector<std::vector<int>> tests = {
+      {32, 32, 32}, {32, 32, 64}, {32, 32, 128}};
 
   for (auto test : tests) {
     // Parse arguments
@@ -115,13 +113,12 @@ int main() {
 
     auto asmStr = generateMatmulISAForEPU(M, N, K);
 
-    std::cout << asmStr << "\n";
-
     char file[] = "/tmp/mytmpfileXXXXXX";
     int fd = mkstemp(file);
 
     std::ofstream ofs(file);
     ofs << asmStr;
+    ofs.close();
     close(fd);
 
     if (!testMatmul(std::string(file), M, K, N)) {
