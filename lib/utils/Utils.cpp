@@ -47,3 +47,21 @@ std::unique_ptr<Simulator> getTargetSimulator(const Processor &processor) {
 
   throw std::runtime_error("Unsupported processor type for simulator.");
 }
+
+Processor createEPUTarget() {
+  constexpr size_t GLOBAL_MEMORY = 1024ULL * 1024 * 1024; // 1 GB
+  constexpr int NUMBER_OF_CORES = 4;
+  constexpr size_t LOCAL_MEMORY_PER_CORE = 512 * 1024; // 512 KB
+  constexpr int NUMBER_OF_MM_UNITS_PER_CORE = 4;
+  constexpr int TILE_M = 32;
+  constexpr int TILE_N = 32;
+  constexpr int TILE_K = 32;
+
+  std::array<int, 3> tile_config = {TILE_M, TILE_N, TILE_K};
+
+  auto target =
+      createTarget("epu", GLOBAL_MEMORY, NUMBER_OF_CORES, LOCAL_MEMORY_PER_CORE,
+                   NUMBER_OF_MM_UNITS_PER_CORE, tile_config);
+
+  return target;
+}
