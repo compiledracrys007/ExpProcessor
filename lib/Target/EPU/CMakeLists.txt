@@ -4,7 +4,7 @@
 set(EPU_TARGET_SOURCES 
     Simulator/EPUSimulator.cpp
     Parser/EPUAsmParser.cpp
-    Codegen/EPUCodeGen.cpp
+    CodeGen/EPUCodeGen.cpp
 )
 
 # Create a static library named 'TargetEPU'

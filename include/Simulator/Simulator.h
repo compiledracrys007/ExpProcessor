@@ -1,6 +1,8 @@
 #include "ISA/Op.h"
 #include "Processor/Processor.h"
 #include <map>
+#include <memory>
+#include <cstring>
 
 #ifndef SIMULATOR_H
 #define SIMULATOR_H
