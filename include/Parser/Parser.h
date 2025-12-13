@@ -3,6 +3,7 @@
 
 #include "ISA/Op.h"
 #include "Processor/Processor.h"
+#include <memory>
 
 class Parser {
 protected:

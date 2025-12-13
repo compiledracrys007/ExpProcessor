@@ -7,6 +7,8 @@
 #include <future>
 #include <iostream>
 #include <stdexcept>
+#include <memory>
+#include <thread>
 
 void EPUSimulator::executeGlobalToLocalMemCopy(GlobalToLocalMemCopyOp *op) {
   auto src = op->getSrcSlice();
