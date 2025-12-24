@@ -18,7 +18,7 @@ constexpr int TILE_N = 64;
 constexpr int TILE_K = 32;
 
 int main() {
-  std::cout << "Starting EPU Acc Test..." << std::endl;
+  std::cout << "\nStarting EPU Acc Test..." << std::endl;
 
   std::array<int, 3> tile_config = {TILE_M, TILE_N, TILE_K};
 

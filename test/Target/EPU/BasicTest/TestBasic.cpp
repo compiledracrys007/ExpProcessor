@@ -10,7 +10,7 @@
 #include <string>
 
 int main() {
-  std::cout << "Starting EPU Basic Test..." << std::endl;
+  std::cout << "\nStarting EPU Basic Test..." << std::endl;
 
   auto target = createEPUTarget();
 

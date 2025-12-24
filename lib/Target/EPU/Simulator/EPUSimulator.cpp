@@ -268,7 +268,6 @@ void EPUSimulator::executeMatmul(MatmulOp *op) {
 }
 
 void EPUSimulator::execute(Op *inst) {
-  inst->dump();
   if (auto *mm = dynamic_cast<MatmulOp *>(inst)) {
     executeMatmul(mm);
   } else if (auto *gtl = dynamic_cast<GlobalToLocalMemCopyOp *>(inst)) {

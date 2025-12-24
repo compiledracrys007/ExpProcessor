@@ -10,7 +10,7 @@
 #include <string>
 
 int main() {
-  std::cout << "Starting EPU Multicore Test..." << std::endl;
+  std::cout << "\nStarting EPU All Core All MM Unit Test..." << std::endl;
 
   auto target = createEPUTarget();
 
@@ -23,7 +23,7 @@ int main() {
   }
 
   std::string filename = std::string(std::getenv("ROOT_DIR")) +
-                         "/test/Target/EPU/MultiCoreTest/multicore.asm";
+                         "/test/Target/EPU/AllMMUnitTest/multicore.asm";
 
   auto parser = getTargetParser(target);
   auto operations = parser->parseFile(filename);
@@ -32,8 +32,8 @@ int main() {
 
   // register inputs & output handles
   float inputTensorA[32][32];
-  float inputTensorB[32][64];
-  float outputTensorC[32][64];
+  float inputTensorB[32][512];
+  float outputTensorC[32][512];
 
   // Initialize input tensors
   for (int i = 0; i < 32; ++i) {
@@ -43,16 +43,16 @@ int main() {
   }
 
   for (int i = 0; i < 32; ++i) {
-    for (int j = 0; j < 64; ++j) {
+    for (int j = 0; j < 512; ++j) {
       inputTensorB[i][j] = static_cast<float>((i - j) / 10.0);
       outputTensorC[i][j] = 0.0f;
     }
   }
 
   // calculate expected output for verification
-  float expectedOutput[32][64];
+  float expectedOutput[32][512];
   for (int i = 0; i < 32; ++i) {
-    for (int j = 0; j < 64; ++j) {
+    for (int j = 0; j < 512; ++j) {
       expectedOutput[i][j] = 0.0f;
       for (int k = 0; k < 32; ++k) {
         expectedOutput[i][j] += inputTensorA[i][k] * inputTensorB[k][j];
@@ -63,8 +63,8 @@ int main() {
   targetSim->registerInputHandle(1, inputTensorA, sizeof(inputTensorA),
                                  {32, 32});
   targetSim->registerInputHandle(2, inputTensorB, sizeof(inputTensorB),
-                                 {32, 64});
-  targetSim->registerOutputHandle(3, sizeof(outputTensorC), {32, 64});
+                                 {32, 512});
+  targetSim->registerOutputHandle(3, sizeof(outputTensorC), {32, 512});
 
   targetSim->simulateInstructions(operations);
 
@@ -73,7 +73,7 @@ int main() {
   // Verify output
   bool correct = true;
   for (int i = 0; i < 32; ++i) {
-    for (int j = 0; j < 64; ++j) {
+    for (int j = 0; j < 512; ++j) {
       if (std::abs(outputTensorC[i][j] - expectedOutput[i][j]) > 1e-5) {
         std::cout << "Mismatch at (" << i << ", " << j << "): expected "
                   << expectedOutput[i][j] << ", got " << outputTensorC[i][j]
