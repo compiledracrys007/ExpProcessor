@@ -86,7 +86,7 @@ bool testMatmul(std::string filename, int M, int K, int N) {
 }
 
 int main() {
-  std::cout << "Starting EPU Codegen Test..." << std::endl;
+  std::cout << "\nStarting EPU Codegen Test..." << std::endl;
 
   // std::string filename = std::string(std::getenv("ROOT_DIR")) +
   //                        "/test/Target/EPU/MultiCoreTest/multicore.asm";

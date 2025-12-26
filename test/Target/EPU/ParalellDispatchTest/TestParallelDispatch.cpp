@@ -10,7 +10,7 @@
 #include <string>
 
 int main() {
-  std::cout << "Starting EPU Parallel Dispatch Test..." << std::endl;
+  std::cout << "\nStarting EPU Parallel Dispatch Test..." << std::endl;
 
   auto target = createEPUTarget();
 

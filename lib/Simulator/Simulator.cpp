@@ -1,6 +1,7 @@
 #include "Simulator/Simulator.h"
 #include "ISA/Op.h"
 #include <assert.h>
+#include <cstring>
 #include <exception>
 #include <iostream>
 

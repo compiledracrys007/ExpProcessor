@@ -2,7 +2,6 @@
 #include "Target/EPU/Parser/EPUAsmParser.h"
 #include "Target/EPU/Simulator/EPUSimulator.h"
 #include <memory>
-
 Processor createTarget(std::string name, size_t global_memory,
                        int number_of_compute_cores,
                        size_t local_memory_per_core,

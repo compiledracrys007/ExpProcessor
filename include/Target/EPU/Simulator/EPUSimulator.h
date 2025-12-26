@@ -1,5 +1,6 @@
 #include "Simulator/Simulator.h"
 #include "Target/EPU/Asm/EPUOps.h"
+#include <memory>
 
 #ifndef EPUSIMULATOR_H
 #define EPUSIMULATOR_H

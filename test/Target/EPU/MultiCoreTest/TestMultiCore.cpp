@@ -10,7 +10,7 @@
 #include <string>
 
 int main() {
-  std::cout << "Starting EPU Multicore Test..." << std::endl;
+  std::cout << "\nStarting EPU Multicore Test..." << std::endl;
 
   auto target = createEPUTarget();
 
