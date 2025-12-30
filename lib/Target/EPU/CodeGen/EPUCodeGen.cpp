@@ -128,46 +128,72 @@ std::string generateMatmulISAForEPU(int M, int N, int K) {
       (localMemPerCore - bytesPerActivationTile)) {
 
     std::string asmStr = "";
-    for (int i = 0;
-         i < (numOfColTiles < numOfCores ? numOfColTiles : numOfCores); i++) {
-      // copy Activation[:, :] to local memory
-      // copy Weight[:, i * colTilesPerCore:
-      //                i * colTilesPerCore  + colTilesPerCore]
-      // matmul
-      // copy output to out[:, i * colTilesPerCore:
-      //                       i * colTilesPerCore  + colTilesPerCore]
-      auto availableLocalMemOffset = 0;
-      auto activationOffset = 0;
-      availableLocalMemOffset += bytesPerActivationTile;
-      auto weightOfffset = availableLocalMemOffset;
-      availableLocalMemOffset += (bytesPerWeightTile * colTilesPerCore);
+    int kTiles = K / tileK;
+    for (int k = 0; k < kTiles; ++k) {
+      asmStr += "\nstart_parallel";
+      for (int i = 0;
+           i < (numOfColTiles < numOfCores ? numOfColTiles : numOfCores); i++) {
+        int availableLocalMemOffset = 0;
+        auto activationOffset = availableLocalMemOffset;
+        availableLocalMemOffset += bytesPerActivationTile;
+        auto weightOfffset = availableLocalMemOffset;
+        availableLocalMemOffset += (bytesPerWeightTile * colTilesPerCore);
+        int actStart = k * tileK;
+        int actEnd = actStart + tileK;
+        std::string actSlice =
+            std::to_string(actStart) + ":" + std::to_string(actEnd) + ":1";
+        emitActivationCopy(i, actSlice, asmStr);
+      }
+      asmStr += "\nend_parallel";
 
-      // distribute across different matmul units (round robin)
-      for (int j = 0; j < colTilesPerCore; j++) {
-        int kTiles = K / tileK;
-        for (int k = 0; k < kTiles; ++k) {
-          int actStart = k * tileK;
-          int actEnd = actStart + tileK;
-          std::string actSlice =
-              std::to_string(actStart) + ":" + std::to_string(actEnd) + ":1";
-          emitActivationCopy(i, actSlice, asmStr);
+      asmStr += "\nstart_parallel";
+      for (int i = 0;
+           i < (numOfColTiles < numOfCores ? numOfColTiles : numOfCores); i++) {
+        int availableLocalMemOffset = 0;
+        auto activationOffset = availableLocalMemOffset;
+        availableLocalMemOffset += bytesPerActivationTile;
+        auto weightOfffset = availableLocalMemOffset;
+        availableLocalMemOffset += (bytesPerWeightTile * colTilesPerCore);
+        int wtStart = k * tileK;
+        int wtEnd = wtStart + tileK;
+        std::string wtSlice =
+            std::to_string(wtStart) + ":" + std::to_string(wtEnd) + ":1";
+        emitWeightCopy(i, colTilesPerCore, weightOfffset, wtSlice, tileN,
+                       asmStr);
+      }
+      asmStr += "\nend_parallel";
 
-          int wtStart = k * tileK;
-          int wtEnd = wtStart + tileK;
-          std::string wtSlice =
-              std::to_string(wtStart) + ":" + std::to_string(wtEnd) + ":1";
-
-          emitWeightCopy(i, colTilesPerCore, weightOfffset, wtSlice, tileN,
-                         asmStr);
+      asmStr += "\nstart_parallel";
+      for (int i = 0;
+           i < (numOfColTiles < numOfCores ? numOfColTiles : numOfCores); i++) {
+        int availableLocalMemOffset = 0;
+        auto activationOffset = availableLocalMemOffset;
+        availableLocalMemOffset += bytesPerActivationTile;
+        auto weightOfffset = availableLocalMemOffset;
+        availableLocalMemOffset += (bytesPerWeightTile * colTilesPerCore);
+        for (int j = 0; j < colTilesPerCore; j++) {
           bool acc = (k != 0);
           emitMatmul(i, j % mmUnitsPerCore, activationOffset, weightOfffset,
                      availableLocalMemOffset, acc, asmStr);
         }
       }
+      asmStr += "\nend_parallel";
+    }
 
+    asmStr += "\nstart_parallel";
+    for (int i = 0;
+         i < (numOfColTiles < numOfCores ? numOfColTiles : numOfCores); i++) {
+      int availableLocalMemOffset = 0;
+      auto activationOffset = availableLocalMemOffset;
+      availableLocalMemOffset += bytesPerActivationTile;
+      auto weightOfffset = availableLocalMemOffset;
+      availableLocalMemOffset += (bytesPerWeightTile * colTilesPerCore);
       emitLocalToGlobalCopy(i, colTilesPerCore, availableLocalMemOffset, tileN,
                             asmStr);
     }
+    asmStr += "\nend_parallel";
+
+    std::cout<<"asmStr : "<<asmStr<<"\n";
 
     return asmStr;
 
